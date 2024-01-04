@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "django-tdd-docker"
+version = "0.1.0"
+description = ""
+authors = ["András Nagy <andrasnagy097@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^5.0.1"
+djangorestframework = "^3.14.0"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.12.1"
+flake8 = "^6.1.0"
+isort = "^5.13.2"
+pre-commit = "^3.6.0"
+
+[tool.black]
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+include = '\.pyi?$'
+line-length = 79
+
+[tool.isort]
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = 79
+multi_line_output = 3
+profile = "black"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
