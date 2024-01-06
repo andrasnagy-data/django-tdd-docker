@@ -54,7 +54,7 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Get version tag from pyproject.toml
@@ -66,8 +66,8 @@ jobs:
       - name: Build image
         run: |
           docker build \
-            --cache-from ${{ env.IMAGE }}:${{ steps.read_toml.outputs.value }} \
-            --tag ${{ env.IMAGE }}:${{ steps.read_toml.outputs.value }} \
+            --cache-from ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }} \
+            --tag ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }} \
             --file ./app/Dockerfile.prod \
             "."
       - name: Run container
@@ -75,7 +75,7 @@ jobs:
           docker run \
             -d \
             --name django-tdd \
-            ${{ env.IMAGE }}:${{ steps.read_toml.outputs.value }}
+            ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }}
       - name: Pytest
         run: docker exec django-tdd python -m pytest .
       - name: Flake8
