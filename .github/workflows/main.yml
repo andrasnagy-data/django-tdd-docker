@@ -73,6 +73,7 @@ jobs:
       - name: Run container
         run: |
           docker run \
+            -d \
             --name django-tdd \
             ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }}
       - name: Pytest
