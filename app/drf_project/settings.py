@@ -145,3 +145,5 @@ if not DEBUG:
     REST_FRAMEWORK = {
         "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",)
     }
+
+API_VERSION_STR = "v1"
