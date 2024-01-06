@@ -1,6 +1,8 @@
 name: Continuous Integration and Delivery
 
-on: [push]
+on: 
+  push:
+    branches: [main]
 
 env:
   GITHUB_IMAGE: ghcr.io/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')/drf
@@ -15,32 +17,30 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: main
-      - name: Log in to GitHub Packages
-        run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin ghcr.io
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Get version tag from pyproject.toml
         uses: SebRollen/toml-action@v1.0.2
         id: read_toml
         with:
           file: pyproject.toml
           field: tool.poetry.version
-      - name: Pull image
-        run: |
-          docker pull ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }} || true
-      - name: Build image
-        run: |
-          docker build \
-            --cache-from ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }} \
-            --tag ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }} \
-            --file ./app/Dockerfile.prod \
-            "."
-      - name: Push image
-        run: |
-          docker push ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          pull: true
+          push: true
+          cache-from: ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }}
+          tags: ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }}
+          file: ./app/Dockerfile.prod
 
   test:
     name: Test Docker Image
@@ -48,22 +48,21 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: main
-      - name: Log in to GitHub Packages
-        run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin ghcr.io
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Get version tag from pyproject.toml
         uses: SebRollen/toml-action@v1.0.2
         id: read_toml
         with:
           file: pyproject.toml
           field: tool.poetry.version
-      - name: Pull image
-        run: |
-          docker pull ${{ env.IMAGE }}:${{ steps.read_toml.outputs.value }} || true
       - name: Build image
         run: |
           docker build \
