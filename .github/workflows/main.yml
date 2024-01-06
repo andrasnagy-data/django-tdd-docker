@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  GITHUB_IMAGE: ghcr.io/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')/drf
+  GITHUB_IMAGE: ghcr.io/andrasnagy-data/django-tdd-docker/drf
 
 jobs:
 
