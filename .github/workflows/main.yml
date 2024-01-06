@@ -77,7 +77,7 @@ jobs:
             --name django-tdd \
             ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }}
       - name: Checkout
-        run: docker image inspect ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }}
+        run: docker image inspect --format '{{.HostConfig.Memory}}' ${{ env.GITHUB_IMAGE }}:${{ steps.read_toml.outputs.value }}
       # - name: Pytest
       #   run: docker exec django-tdd python -m pytest .
       # - name: Flake8
